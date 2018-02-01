@@ -42,7 +42,8 @@ func (ael authEntryList) exists(ip string) bool {
 
 func (ael authEntryList) print() {
 	for ip, ae := range ael {
-		fmt.Printf("IP: %s, Attempt Count: %d, Users: %s\n", ip, ae.count, strings.Join(ae.users, ", "))
+		//fmt.Printf("IP: %s, Attempt Count: %d, Users: %s\n", ip, ae.count, strings.Join(ae.users, ", "))
+		fmt.Printf("\tIP: %s\n\t\tAttempt count: %d\n\t\tUsernames: %s\n", ip, ae.count, strings.Join(ae.users, ", "))
 	}
 }
 
