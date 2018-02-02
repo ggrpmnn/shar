@@ -44,10 +44,11 @@ func (ael authEntryList) exists(ip string) bool {
 
 func (ael authEntryList) print() {
 	for ip, ae := range ael {
-		color.Set(color.FgBlue)
+		color.Set(color.FgBlue, color.Bold)
 		fmt.Printf("IP: %s\n", ip)
+		color.Unset()
 		color.Set(color.FgYellow)
-		fmt.Print("Num attempts: ")
+		fmt.Print("Num. attempts: ")
 		color.Unset()
 		fmt.Printf("%d\n", ae.count)
 		color.Set(color.FgYellow)
@@ -58,10 +59,11 @@ func (ael authEntryList) print() {
 }
 
 func (dae datedAuthEntries) print() {
-	color.Set(color.FgGreen)
+	color.Set(color.FgGreen, color.Bold)
 	fmt.Println("Date: " + dae.date)
 	color.Unset()
 	dae.entries.print()
+	fmt.Println()
 }
 
 func (ae allEntries) print() {
