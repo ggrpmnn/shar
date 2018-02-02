@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 // tracks the login attempts (per-IP, single day)
@@ -42,13 +44,23 @@ func (ael authEntryList) exists(ip string) bool {
 
 func (ael authEntryList) print() {
 	for ip, ae := range ael {
-		//fmt.Printf("IP: %s, Attempt Count: %d, Users: %s\n", ip, ae.count, strings.Join(ae.users, ", "))
-		fmt.Printf("\tIP: %s\n\t\tAttempt count: %d\n\t\tUsernames: %s\n", ip, ae.count, strings.Join(ae.users, ", "))
+		color.Set(color.FgBlue)
+		fmt.Printf("IP: %s\n", ip)
+		color.Set(color.FgYellow)
+		fmt.Print("Num attempts: ")
+		color.Unset()
+		fmt.Printf("%d\n", ae.count)
+		color.Set(color.FgYellow)
+		fmt.Print("Usernames: ")
+		color.Unset()
+		fmt.Printf("%s\n", strings.Join(ae.users, ", "))
 	}
 }
 
 func (dae datedAuthEntries) print() {
+	color.Set(color.FgGreen)
 	fmt.Println("Date: " + dae.date)
+	color.Unset()
 	dae.entries.print()
 }
 

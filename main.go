@@ -11,7 +11,7 @@ import (
 var debugOn = false
 
 func main() {
-	file, err := os.Open("./auth.log.sample")
+	file, err := os.Open("/var/log/auth.log")
 	if err != nil {
 		log.Fatal(err)
 	}
