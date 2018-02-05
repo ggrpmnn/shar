@@ -58,6 +58,14 @@ func (ael authEntryList) print() {
 	}
 }
 
+func (ael authEntryList) jsonPrint() {
+	for ip, ae := range ael {
+		fmt.Printf("\t\t\t\"ip\": \"%s\",", ip)
+		fmt.Printf("\t\t\t\"count\": \"%d\",", ae.count)
+		fmt.Printf("\t\t\t\"usernames\": \"[%s]\"", strings.Join(ae.users, ", "))
+	}
+}
+
 func (dae datedAuthEntries) print() {
 	color.Set(color.FgGreen, color.Bold)
 	fmt.Println("Date: " + dae.date)
@@ -66,8 +74,25 @@ func (dae datedAuthEntries) print() {
 	fmt.Println()
 }
 
+func (dae datedAuthEntries) jsonPrint() {
+	fmt.Println("\t{")
+	fmt.Printf("\t\t\"date\": \"%s\",\n", dae.date)
+	fmt.Printf("\t\t\"entries\": {")
+	dae.entries.jsonPrint()
+	fmt.Println("\t\t}")
+	fmt.Println("\t}")
+}
+
 func (ae allEntries) print() {
 	for _, dae := range ae {
 		dae.print()
 	}
+}
+
+func (ae allEntries) jsonPrint() {
+	fmt.Println("{")
+	for _, dae := range ae {
+		dae.jsonPrint()
+	}
+	fmt.Println("}")
 }

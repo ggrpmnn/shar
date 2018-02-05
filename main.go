@@ -2,15 +2,26 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"regexp"
 
 	"log"
 	"os"
 )
 
-var debugOn = false
+var (
+	debugOn bool
+	jsonOut bool
+)
+
+func init() {
+	flag.BoolVar(&debugOn, "d", false, "turns debug output on")
+	flag.BoolVar(&jsonOut, "j", false, "outputs data as JSON")
+}
 
 func main() {
+	flag.Parse()
+
 	file, err := os.Open("/var/log/auth.log")
 	if err != nil {
 		log.Fatal(err)
@@ -54,7 +65,12 @@ func main() {
 	}
 	debug("finished parsing log file")
 
-	attempts.print()
+	if jsonOut {
+		debug("outputting JSON")
+		attempts.jsonPrint()
+	} else {
+		attempts.print()
+	}
 }
 
 func debug(msg string) {
