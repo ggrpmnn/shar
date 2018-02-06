@@ -66,8 +66,12 @@ func main() {
 		}
 		if dateFound == false {
 			debug("adding new date: '%s'", matches[1])
+			location, err := locateIP(matches[4])
+			if err != nil {
+				debug("error retrieving IP information: %s", err.Error())
+			}
 			newDate := datedAuthEntries{Date: matches[1], Entries: make([]authEntry, 0)}
-			newDate.Entries = append(newDate.Entries, authEntry{IP: matches[4], Count: 1, Users: []string{matches[3]}})
+			newDate.Entries = append(newDate.Entries, authEntry{IP: matches[4], Location: location.composeLocationString(), Count: 1, Users: []string{matches[3]}})
 			attempts = append(attempts, newDate)
 		}
 		dateFound = false
