@@ -55,7 +55,11 @@ func main() {
 				} else {
 					debug("appending new IP: '%s'", matches[4])
 					tmp := attempts[idx]
-					tmp.Entries = append(tmp.Entries, authEntry{IP: matches[4], Count: 1, Users: []string{matches[3]}})
+					location, err := locateIP(matches[4])
+					if err != nil {
+						debug("error retrieving IP information: %s", err.Error())
+					}
+					tmp.Entries = append(tmp.Entries, authEntry{IP: matches[4], Location: location.composeLocationString(), Count: 1, Users: []string{matches[3]}})
 					attempts[idx] = tmp
 				}
 			}

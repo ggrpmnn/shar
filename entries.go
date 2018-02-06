@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strings"
 
 	"github.com/fatih/color"
@@ -10,9 +12,10 @@ import (
 
 // tracks the login attempts (per-IP, single day)
 type authEntry struct {
-	IP    string   `json:"ip"`
-	Count int      `json:"count"`
-	Users []string `json:"usernames"`
+	IP       string   `json:"ip"`
+	Location string   `json:"location"`
+	Count    int      `json:"count"`
+	Users    []string `json:"usernames"`
 }
 
 // associates authEntryList objects with a particular date
@@ -23,6 +26,51 @@ type datedAuthEntries struct {
 
 // slice for containing all dated entries
 type allEntries []datedAuthEntries
+
+// IPAPIResponse contains the response data to the IP API (https://ip-api.com/json) request
+type IPAPIResponse struct {
+	Status       string  `json:"status"`
+	Country      string  `json:"country"`
+	CountryCode  string  `json:"countryCode"`
+	Region       string  `json:"region"`
+	RegionName   string  `json:"regionName"`
+	City         string  `json:"city"`
+	ZipCode      string  `json:"zip"`
+	Latitude     float64 `json:"lat"`
+	Longitude    float64 `json:"lon"`
+	TimeZone     string  `json:"timezone"`
+	ISP          string  `json:"isp"`
+	Organization string  `json:"org"`
+	As           string  `json:"as"`
+	QueryIP      string  `json:"query"`
+}
+
+// makes a call to a IP-geolocation API, parses the data into a response struct and returns the result
+func locateIP(ip string) (IPAPIResponse, error) {
+	resp, err := http.Get("http://ip-api.com/json/" + ip)
+	if err != nil {
+		return IPAPIResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	bData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return IPAPIResponse{}, err
+	}
+
+	location := IPAPIResponse{}
+	err = json.Unmarshal(bData, &location)
+	if err != nil {
+		return IPAPIResponse{}, err
+	}
+
+	return location, nil
+}
+
+// takes an IP API response struct and composes a location string using the data
+func (iar IPAPIResponse) composeLocationString() string {
+	return fmt.Sprintf("%s, %s, %s (%f, %f)", iar.City, iar.RegionName, iar.Country, iar.Latitude, iar.Longitude)
+}
 
 // adds the username to the list for the given IP AuthEntry struct
 func (ae *authEntry) addUser(user string) {
@@ -53,6 +101,9 @@ func (ae allEntries) print() {
 		for _, ae := range dae.Entries {
 			color.Set(color.FgBlue, color.Bold)
 			fmt.Printf("IP: %s\n", ae.IP)
+			color.Unset()
+			color.Set(color.FgMagenta)
+			fmt.Printf("Location: %s\n", ae.Location)
 			color.Unset()
 			color.Set(color.FgYellow)
 			fmt.Print("Num. attempts: ")
