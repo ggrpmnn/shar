@@ -59,7 +59,7 @@ func main() {
 					if err != nil {
 						debug("error retrieving IP information: %s", err.Error())
 					}
-					tmp.Entries = append(tmp.Entries, authEntry{IP: matches[4], Location: location.composeLocationString(), Count: 1, Users: []string{matches[3]}})
+					tmp.Entries = append(tmp.Entries, authEntry{IP: matches[4], Country: location.Country, Region: location.RegionName, City: location.City, Lat: location.Latitude, Long: location.Longitude, Count: 1, Users: []string{matches[3]}})
 					attempts[idx] = tmp
 				}
 			}
@@ -71,7 +71,7 @@ func main() {
 				debug("error retrieving IP information: %s", err.Error())
 			}
 			newDate := datedAuthEntries{Date: matches[1], Entries: make([]authEntry, 0)}
-			newDate.Entries = append(newDate.Entries, authEntry{IP: matches[4], Location: location.composeLocationString(), Count: 1, Users: []string{matches[3]}})
+			newDate.Entries = append(newDate.Entries, authEntry{IP: matches[4], Country: location.Country, Region: location.RegionName, City: location.City, Lat: location.Latitude, Long: location.Longitude, Count: 1, Users: []string{matches[3]}})
 			attempts = append(attempts, newDate)
 		}
 		dateFound = false

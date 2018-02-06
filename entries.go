@@ -12,10 +12,14 @@ import (
 
 // tracks the login attempts (per-IP, single day)
 type authEntry struct {
-	IP       string   `json:"ip"`
-	Location string   `json:"location"`
-	Count    int      `json:"count"`
-	Users    []string `json:"usernames"`
+	IP      string   `json:"ip"`
+	Country string   `json:"country"`
+	Region  string   `json:"region"`
+	City    string   `json:"city"`
+	Lat     float64  `json:"latitude"`
+	Long    float64  `json:"longitude"`
+	Count   int      `json:"count"`
+	Users   []string `json:"usernames"`
 }
 
 // associates authEntryList objects with a particular date
@@ -68,8 +72,8 @@ func locateIP(ip string) (IPAPIResponse, error) {
 }
 
 // takes an IP API response struct and composes a location string using the data
-func (iar IPAPIResponse) composeLocationString() string {
-	return fmt.Sprintf("%s, %s, %s (%f, %f)", iar.City, iar.RegionName, iar.Country, iar.Latitude, iar.Longitude)
+func (ae authEntry) composeLocationString() string {
+	return fmt.Sprintf("%s, %s, %s (%f, %f)", ae.City, ae.Region, ae.Country, ae.Lat, ae.Long)
 }
 
 // adds the username to the list for the given IP AuthEntry struct
@@ -105,7 +109,7 @@ func (ae allEntries) print() {
 			color.Set(color.FgYellow)
 			fmt.Print("Location: ")
 			color.Unset()
-			fmt.Println(ae.Location)
+			fmt.Println(ae.composeLocationString())
 			color.Set(color.FgYellow)
 			fmt.Print("Attempts: ")
 			color.Unset()
