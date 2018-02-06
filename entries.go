@@ -27,7 +27,7 @@ type datedAuthEntries struct {
 // slice for containing all dated entries
 type allEntries []datedAuthEntries
 
-// IPAPIResponse contains the response data to the IP API (https://ip-api.com/json) request
+// IPAPIResponse contains the response data from an IP API (https://ip-api.com/json) request
 type IPAPIResponse struct {
 	Status       string  `json:"status"`
 	Country      string  `json:"country"`
