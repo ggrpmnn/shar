@@ -10,15 +10,17 @@ import (
 )
 
 var (
-	debugOn  bool
-	filename string
-	jsonOut  bool
+	debugOn   bool
+	filename  string
+	jsonOut   bool
+	threshold int
 )
 
 func init() {
 	flag.BoolVar(&debugOn, "d", false, "enable debug output")
 	flag.BoolVar(&jsonOut, "j", false, "output results in JSON format")
 	flag.StringVar(&filename, "f", "/var/log/auth.log", "auth log file to parse")
+	flag.IntVar(&threshold, "n", 0, "minimum number of attempts required to collect info")
 }
 
 func main() {
