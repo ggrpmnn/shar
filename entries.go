@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/fatih/color"
@@ -46,32 +45,29 @@ func (dae *datedAuthEntries) exists(ip string) (int, bool) {
 	return 0, false
 }
 
-func (dae datedAuthEntries) print() {
-	color.Set(color.FgGreen, color.Bold)
-	fmt.Println("Date: " + dae.Date)
-	color.Unset()
-	for _, ae := range dae.Entries {
-		color.Set(color.FgBlue, color.Bold)
-		fmt.Printf("IP: %s\n", ae.IP)
-		color.Unset()
-		color.Set(color.FgYellow)
-		fmt.Print("Num. attempts: ")
-		color.Unset()
-		fmt.Printf("%d\n", ae.Count)
-		color.Set(color.FgYellow)
-		fmt.Print("Usernames: ")
-		color.Unset()
-		fmt.Printf("%s\n", strings.Join(ae.Users, ", "))
-	}
-	fmt.Println()
-}
-
 func (ae allEntries) print() {
 	for _, dae := range ae {
-		dae.print()
+		color.Set(color.FgGreen, color.Bold)
+		fmt.Println("Date: " + dae.Date)
+		color.Unset()
+		for _, ae := range dae.Entries {
+			color.Set(color.FgBlue, color.Bold)
+			fmt.Printf("IP: %s\n", ae.IP)
+			color.Unset()
+			color.Set(color.FgYellow)
+			fmt.Print("Num. attempts: ")
+			color.Unset()
+			fmt.Printf("%d\n", ae.Count)
+			color.Set(color.FgYellow)
+			fmt.Print("Usernames: ")
+			color.Unset()
+			fmt.Printf("%s\n", strings.Join(ae.Users, ", "))
+		}
+		fmt.Println()
 	}
 }
 
 func (ae allEntries) jsonPrint() {
-	_ = json.NewEncoder(os.Stdout).Encode(&ae)
+	bytes, _ := json.MarshalIndent(ae, "", "    ")
+	fmt.Println(string(bytes))
 }
