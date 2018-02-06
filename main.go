@@ -80,8 +80,11 @@ func main() {
 		debug("outputting JSON")
 		attempts.jsonPrint()
 	} else {
+		debug("outputting plaintext")
 		attempts.print()
 	}
+
+	debug("operation complete")
 }
 
 func debug(fmt string, a ...interface{}) {
