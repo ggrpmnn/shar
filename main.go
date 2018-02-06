@@ -44,26 +44,26 @@ func main() {
 		// matches[0]=full string, [1]=date, [2]=time, [3]=user, [4]=IP
 		dateFound := false
 		for idx, dae := range attempts {
-			if dae.date == matches[1] {
+			if dae.Date == matches[1] {
 				dateFound = true
 				jdx, ok := dae.exists(matches[4])
 				if ok {
 					debug("updating existing IP entry: '%s'", matches[4])
-					tmp := dae.entries[jdx]
+					tmp := dae.Entries[jdx]
 					tmp.addUser(matches[3])
-					dae.entries[jdx] = tmp
+					dae.Entries[jdx] = tmp
 				} else {
 					debug("appending new IP: '%s'", matches[4])
 					tmp := attempts[idx]
-					tmp.entries = append(tmp.entries, authEntry{ip: matches[4], count: 1, users: []string{matches[3]}})
+					tmp.Entries = append(tmp.Entries, authEntry{IP: matches[4], Count: 1, Users: []string{matches[3]}})
 					attempts[idx] = tmp
 				}
 			}
 		}
 		if dateFound == false {
 			debug("adding new date: '%s'", matches[1])
-			newDate := datedAuthEntries{date: matches[1], entries: make([]authEntry, 0)}
-			newDate.entries = append(newDate.entries, authEntry{ip: matches[4], count: 1, users: []string{matches[3]}})
+			newDate := datedAuthEntries{Date: matches[1], Entries: make([]authEntry, 0)}
+			newDate.Entries = append(newDate.Entries, authEntry{IP: matches[4], Count: 1, Users: []string{matches[3]}})
 			attempts = append(attempts, newDate)
 		}
 		dateFound = false
