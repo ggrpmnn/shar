@@ -9,7 +9,7 @@ Currently, shar only supports looking at SSH login attempts.
 TODO:
 
 - [ ] Add ip lookup/geographical region functionality
-- [ ] Add JSON output functionality
-- [ ] Add ability to look at previous auth.log files (`auth.log.1`, etc.)
+- [X] Add JSON output functionality
+- [X] Add ability to look at previous auth.log files (`auth.log.1`, etc.)
 
 
