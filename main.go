@@ -10,24 +10,26 @@ import (
 )
 
 var (
-	debugOn bool
-	jsonOut bool
+	debugOn  bool
+	filename string
+	jsonOut  bool
 )
 
 func init() {
-	flag.BoolVar(&debugOn, "d", false, "turns debug output on")
-	flag.BoolVar(&jsonOut, "j", false, "outputs data as JSON")
+	flag.BoolVar(&debugOn, "d", false, "enable debug output")
+	flag.BoolVar(&jsonOut, "j", false, "output results in JSON format")
+	flag.StringVar(&filename, "f", "/var/log/auth.log", "auth log file to parse")
 }
 
 func main() {
 	flag.Parse()
 
-	file, err := os.Open("/var/log/auth.log")
+	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-	debug("auth file loaded")
+	debug("auth file loaded: %s", filename)
 
 	attempts := make(allEntries, 0)
 	// example auth log line for invalid entries: "Feb  1 19:02:48 grpi sshd[8749]: Invalid user pi from 202.120.42.141"
@@ -41,21 +43,27 @@ func main() {
 		}
 		// matches[0]=full string, [1]=date, [2]=time, [3]=user, [4]=IP
 		dateFound := false
-		for _, dae := range attempts {
+		for idx, dae := range attempts {
 			if dae.date == matches[1] {
 				dateFound = true
-				if dae.entries.exists(matches[4]) {
-					tmpEntry := dae.entries[matches[4]]
-					tmpEntry.addUser(matches[3])
-					dae.entries[matches[4]] = tmpEntry
+				jdx, ok := dae.exists(matches[4])
+				if ok {
+					debug("updating existing IP entry: '%s'", matches[4])
+					tmp := dae.entries[jdx]
+					tmp.addUser(matches[3])
+					dae.entries[jdx] = tmp
 				} else {
-					dae.entries[matches[4]] = authEntry{count: 1, users: []string{matches[3]}}
+					debug("appending new IP: '%s'", matches[4])
+					tmp := attempts[idx]
+					tmp.entries = append(tmp.entries, authEntry{ip: matches[4], count: 1, users: []string{matches[3]}})
+					attempts[idx] = tmp
 				}
 			}
 		}
 		if dateFound == false {
-			newDate := datedAuthEntries{date: matches[1], entries: make(authEntryList, 0)}
-			newDate.entries[matches[4]] = authEntry{count: 1, users: []string{matches[3]}}
+			debug("adding new date: '%s'", matches[1])
+			newDate := datedAuthEntries{date: matches[1], entries: make([]authEntry, 0)}
+			newDate.entries = append(newDate.entries, authEntry{ip: matches[4], count: 1, users: []string{matches[3]}})
 			attempts = append(attempts, newDate)
 		}
 		dateFound = false
@@ -65,6 +73,9 @@ func main() {
 	}
 	debug("finished parsing log file")
 
+	// output parsed data to debug
+	debug("data: %+v", attempts)
+
 	if jsonOut {
 		debug("outputting JSON")
 		attempts.jsonPrint()
@@ -73,8 +84,8 @@ func main() {
 	}
 }
 
-func debug(msg string) {
+func debug(fmt string, a ...interface{}) {
 	if debugOn {
-		log.Println(msg)
+		log.Printf(fmt, a...)
 	}
 }

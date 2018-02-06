@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -9,17 +10,15 @@ import (
 
 // tracks the login attempts (per-IP, single day)
 type authEntry struct {
+	ip    string
 	count int
 	users []string
 }
 
-// maps IPs to authEntry attempts
-type authEntryList map[string]authEntry
-
 // associates authEntryList objects with a particular date
 type datedAuthEntries struct {
 	date    string
-	entries authEntryList
+	entries []authEntry
 }
 
 // slice for containing all dated entries
@@ -37,15 +36,22 @@ func (ae *authEntry) addUser(user string) {
 }
 
 // returns true if the IP string exists in the given map
-func (ael authEntryList) exists(ip string) bool {
-	_, ok := ael[ip]
-	return ok
+func (dae *datedAuthEntries) exists(ip string) (int, bool) {
+	for idx, ae := range dae.entries {
+		if ae.ip == ip {
+			return idx, true
+		}
+	}
+	return 0, false
 }
 
-func (ael authEntryList) print() {
-	for ip, ae := range ael {
+func (dae datedAuthEntries) print() {
+	color.Set(color.FgGreen, color.Bold)
+	fmt.Println("Date: " + dae.date)
+	color.Unset()
+	for _, ae := range dae.entries {
 		color.Set(color.FgBlue, color.Bold)
-		fmt.Printf("IP: %s\n", ip)
+		fmt.Printf("IP: %s\n", ae.ip)
 		color.Unset()
 		color.Set(color.FgYellow)
 		fmt.Print("Num. attempts: ")
@@ -56,31 +62,7 @@ func (ael authEntryList) print() {
 		color.Unset()
 		fmt.Printf("%s\n", strings.Join(ae.users, ", "))
 	}
-}
-
-func (ael authEntryList) jsonPrint() {
-	for ip, ae := range ael {
-		fmt.Printf("\t\t\t\"ip\": \"%s\",", ip)
-		fmt.Printf("\t\t\t\"count\": \"%d\",", ae.count)
-		fmt.Printf("\t\t\t\"usernames\": \"[%s]\"", strings.Join(ae.users, ", "))
-	}
-}
-
-func (dae datedAuthEntries) print() {
-	color.Set(color.FgGreen, color.Bold)
-	fmt.Println("Date: " + dae.date)
-	color.Unset()
-	dae.entries.print()
 	fmt.Println()
-}
-
-func (dae datedAuthEntries) jsonPrint() {
-	fmt.Println("\t{")
-	fmt.Printf("\t\t\"date\": \"%s\",\n", dae.date)
-	fmt.Printf("\t\t\"entries\": {")
-	dae.entries.jsonPrint()
-	fmt.Println("\t\t}")
-	fmt.Println("\t}")
 }
 
 func (ae allEntries) print() {
@@ -90,9 +72,8 @@ func (ae allEntries) print() {
 }
 
 func (ae allEntries) jsonPrint() {
-	fmt.Println("{")
 	for _, dae := range ae {
-		dae.jsonPrint()
+		bytes, _ := json.Marshal(dae.entries)
+		fmt.Println(string(bytes))
 	}
-	fmt.Println("}")
 }
