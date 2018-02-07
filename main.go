@@ -15,10 +15,10 @@ var (
 )
 
 func init() {
-	flag.BoolVar(&debugOn, "d", false, "enable debug output")
-	flag.BoolVar(&jsonOut, "j", false, "output results in JSON format")
-	flag.StringVar(&filename, "f", "/var/log/auth.log", "auth log file to parse")
-	flag.IntVar(&threshold, "n", 0, "minimum number of attempts required to collect info")
+	flag.BoolVar(&debugOn, "d", false, "enables debug output")
+	flag.BoolVar(&jsonOut, "j", false, "outputs results in JSON format")
+	flag.StringVar(&filename, "f", "/var/log/auth.log", "indicates auth log file to parse")
+	flag.IntVar(&threshold, "n", 0, "limits output to matches that have at least n login attempts")
 }
 
 func main() {
@@ -32,7 +32,6 @@ func main() {
 	debug("auth file loaded: %s", filename)
 
 	attempts := parseSSHAttempts(file)
-
 	debug("finished parsing log file")
 
 	// output parsed data to debug
