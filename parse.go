@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strings"
 )
 
 func parseSSHAttempts(file *os.File) allEntries {
@@ -21,8 +22,9 @@ func parseSSHAttempts(file *os.File) allEntries {
 		}
 		// matches[0]=full string, [1]=date, [2]=time, [3]=user, [4]=IP
 		dateFound := false
+		trimDate := strings.Join(strings.Fields(matches[1]), " ")
 		for idx, dae := range attempts {
-			if dae.Date == matches[1] {
+			if dae.Date == trimDate {
 				dateFound = true
 				jdx, ok := dae.exists(matches[4])
 				if ok {
@@ -43,12 +45,12 @@ func parseSSHAttempts(file *os.File) allEntries {
 			}
 		}
 		if dateFound == false {
-			debug("adding new date: '%s'", matches[1])
+			debug("adding new date: '%s'", trimDate)
 			location, err := locateIP(matches[4])
 			if err != nil {
 				debug("error retrieving IP information: %s", err.Error())
 			}
-			newDate := datedAuthEntries{Date: matches[1], Entries: make([]authEntry, 0)}
+			newDate := datedAuthEntries{Date: trimDate, Entries: make([]authEntry, 0)}
 			newDate.Entries = append(newDate.Entries, authEntry{IP: matches[4], Country: location.Country, Region: location.RegionName, City: location.City, Lat: location.Latitude, Long: location.Longitude, Count: 1, Users: []string{matches[3]}})
 			attempts = append(attempts, newDate)
 		}
