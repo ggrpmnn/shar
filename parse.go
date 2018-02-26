@@ -10,6 +10,7 @@ import (
 
 func parseSSHAttempts(file *os.File) allEntries {
 	attempts := make(allEntries, 0)
+	iac := newIPAPIClient("http://ip-api.com/json/")
 
 	// example auth log line for invalid entries: "Feb  1 19:02:48 grpi sshd[8749]: Invalid user pi from 202.120.42.141"
 	rx := regexp.MustCompile(`(\w+\s+\d)+\s+(\d{2}:\d{2}:\d{2})\s+grpi sshd\[\d+\]: Invalid user (.*) from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})`)
@@ -35,7 +36,7 @@ func parseSSHAttempts(file *os.File) allEntries {
 				} else {
 					debug("appending new IP: '%s'", matches[4])
 					tmp := attempts[idx]
-					location, err := locateIP(matches[4])
+					location, err := iac.locateIP(matches[4])
 					if err != nil {
 						debug("error retrieving IP information: %s", err.Error())
 					}
@@ -46,7 +47,7 @@ func parseSSHAttempts(file *os.File) allEntries {
 		}
 		if dateFound == false {
 			debug("adding new date: '%s'", trimDate)
-			location, err := locateIP(matches[4])
+			location, err := iac.locateIP(matches[4])
 			if err != nil {
 				debug("error retrieving IP information: %s", err.Error())
 			}
