@@ -13,7 +13,7 @@ func parseSSHAttempts(file *os.File) allEntries {
 	iac := newIPAPIClient("http://ip-api.com/json/")
 
 	// example auth log line for invalid entries: "Feb  1 19:02:48 grpi sshd[8749]: Invalid user pi from 202.120.42.141"
-	rx := regexp.MustCompile(`(\w+\s+\d)+\s+(\d{2}:\d{2}:\d{2})\s+grpi sshd\[\d+\]: Invalid user (.*) from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})`)
+	rx := regexp.MustCompile(`(\w+\s+\d+)+\s+(\d{2}:\d{2}:\d{2})\s+grpi sshd\[\d+\]: Invalid user (.*) from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})`)
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
