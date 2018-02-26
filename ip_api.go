@@ -69,6 +69,7 @@ func (iac *ipAPIClient) Get(target string) (*http.Response, error) {
 	iac.liveReqs++
 	if iac.liveReqs >= rateLimitPerMin {
 		time.Sleep(1 * time.Minute)
+		iac.liveReqs = 0
 	}
 
 	return iac.client.Get(target)
