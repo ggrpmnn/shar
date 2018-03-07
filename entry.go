@@ -45,18 +45,27 @@ func (dae *datedAuthEntries) exists(ip string) (int, bool) {
 	return 0, false
 }
 
-func (ae allEntries) Filter() allEntries {
-	return nil
+// filters the entries based on certain functional criteria
+func (dae *datedAuthEntries) Filter(f func(authEntry) bool) []authEntry {
+	filtered := make([]authEntry, 0)
+	for _, ae := range dae.Entries {
+		if f(ae) {
+			filtered = append(filtered, ae)
+		}
+	}
+	return filtered
 }
 
 func (ae allEntries) print() {
 	iac := newIPAPIClient("http://ip-api.com/json/")
+
 	for _, dae := range ae {
-		color.Set(color.FgGreen, color.Bold)
-		fmt.Println("Date: " + dae.Date)
-		color.Unset()
-		for _, ae := range dae.Entries {
-			if ae.Count >= threshold {
+		// don't print the date if there are no entries
+		if len(dae.Entries) > 0 {
+			color.Set(color.FgGreen, color.Bold)
+			fmt.Println("Date: " + dae.Date)
+			color.Unset()
+			for _, ae := range dae.Entries {
 				color.Set(color.FgBlue, color.Bold)
 				fmt.Printf("IP: %s\n", ae.IP)
 				color.Unset()
@@ -74,8 +83,8 @@ func (ae allEntries) print() {
 				color.Unset()
 				fmt.Println(strings.Join(ae.Users, ", "))
 			}
+			fmt.Println()
 		}
-		fmt.Println()
 	}
 }
 
