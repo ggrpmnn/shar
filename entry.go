@@ -10,14 +10,9 @@ import (
 
 // tracks the login attempts (per-IP, single day)
 type authEntry struct {
-	IP      string   `json:"ip"`
-	Country string   `json:"country"`
-	Region  string   `json:"region"`
-	City    string   `json:"city"`
-	Lat     float64  `json:"latitude"`
-	Long    float64  `json:"longitude"`
-	Count   int      `json:"count"`
-	Users   []string `json:"usernames"`
+	IP    string   `json:"ip"`
+	Count int      `json:"count"`
+	Users []string `json:"usernames"`
 }
 
 // associates authEntryList objects with a particular date
@@ -28,11 +23,6 @@ type datedAuthEntries struct {
 
 // slice for containing all dated entries
 type allEntries []datedAuthEntries
-
-// takes an IP API response struct and composes a location string using the data
-func (ae authEntry) composeLocationString() string {
-	return fmt.Sprintf("%s, %s, %s (%f, %f)", ae.City, ae.Region, ae.Country, ae.Lat, ae.Long)
-}
 
 // adds the username to the list for the given IP AuthEntry struct
 func (ae *authEntry) addUser(user string) {
@@ -55,7 +45,12 @@ func (dae *datedAuthEntries) exists(ip string) (int, bool) {
 	return 0, false
 }
 
+func (ae allEntries) Filter() allEntries {
+	return nil
+}
+
 func (ae allEntries) print() {
+	iac := newIPAPIClient("http://ip-api.com/json/")
 	for _, dae := range ae {
 		color.Set(color.FgGreen, color.Bold)
 		fmt.Println("Date: " + dae.Date)
@@ -68,7 +63,8 @@ func (ae allEntries) print() {
 				color.Set(color.FgYellow)
 				fmt.Print("Location: ")
 				color.Unset()
-				fmt.Println(ae.composeLocationString())
+				location, _ := iac.locateIP(ae.IP)
+				fmt.Println(location.composeLocationString())
 				color.Set(color.FgYellow)
 				fmt.Print("Attempts: ")
 				color.Unset()
@@ -83,7 +79,7 @@ func (ae allEntries) print() {
 	}
 }
 
-func (ae allEntries) jsonPrint() {
+func (ae allEntries) printJSON() {
 	bytes, _ := json.MarshalIndent(ae, "", "    ")
 	fmt.Println(string(bytes))
 }

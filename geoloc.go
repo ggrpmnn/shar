@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -32,6 +33,11 @@ type ipAPIClient struct {
 }
 
 const rateLimitPerMin = 150
+
+// takes an IP API response struct and composes a location string using the data
+func (iar *IPAPIResponse) composeLocationString() string {
+	return fmt.Sprintf("%s, %s, %s (%f, %f)", iar.City, iar.Region, iar.Country, iar.Latitude, iar.Longitude)
+}
 
 func newIPAPIClient(url string) ipAPIClient {
 	client := ipAPIClient{}

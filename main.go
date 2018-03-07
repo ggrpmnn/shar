@@ -39,7 +39,7 @@ func main() {
 
 	if jsonOut {
 		debug("outputting JSON")
-		attempts.jsonPrint()
+		attempts.printJSON()
 	} else {
 		debug("outputting plaintext")
 		attempts.print()
