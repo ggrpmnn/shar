@@ -50,13 +50,14 @@ func main() {
 			})
 			attempts[idx].Entries = filtered
 		}
-		// IP
+		// IP address filter
 		if address != "" {
 			filtered := attempts[idx].Filter(func(ae authEntry) bool {
 				return ae.IP == address
 			})
 			attempts[idx].Entries = filtered
 		}
+		// username filter
 		if user != "" {
 			filtered := attempts[idx].Filter(func(ae authEntry) bool {
 				for _, name := range ae.Users {
