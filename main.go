@@ -13,14 +13,16 @@ var (
 	jsonOut   bool
 	threshold int
 	address   string
+	user      string
 )
 
 func init() {
 	flag.BoolVar(&debugOn, "d", false, "enables debug output")
 	flag.BoolVar(&jsonOut, "j", false, "outputs results in JSON format")
 	flag.StringVar(&filename, "f", "/var/log/auth.log", "indicates auth log file to parse")
-	flag.IntVar(&threshold, "n", 0, "limits output to matches that have at least n login attempts")
-	flag.StringVar(&address, "i", "", "limits output to entries that come from the specified IP address")
+	flag.IntVar(&threshold, "n", 0, "limits output to entries that have at least n login attempts")
+	flag.StringVar(&address, "i", "", "limits output to entries that originate from the specified IP address")
+	flag.StringVar(&user, "u", "", "limits output to entries that are logging in as the specified user")
 }
 
 func main() {
@@ -55,8 +57,18 @@ func main() {
 			})
 			attempts[idx].Entries = filtered
 		}
+		if user != "" {
+			filtered := attempts[idx].Filter(func(ae authEntry) bool {
+				for _, name := range ae.Users {
+					if name == user {
+						return true
+					}
+				}
+				return false
+			})
+			attempts[idx].Entries = filtered
+		}
 	}
-
 	debug("filtered data: %+v", attempts)
 
 	if jsonOut {
