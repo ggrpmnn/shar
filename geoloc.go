@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/juju/ratelimit"
 )
 
 // IPAPIResponse contains the response data from an IP API (https://ip-api.com/json) request
@@ -27,12 +29,17 @@ type IPAPIResponse struct {
 }
 
 type ipAPIClient struct {
-	client   *http.Client
-	URL      string
-	liveReqs int
+	client *http.Client
+	URL    string
+
+	// limiter is a rate limiter designed to keep requests from exceeding the IP API rate limit
+	limiter *ratelimit.Bucket
 }
 
-const rateLimitPerMin = 150
+const (
+	ipapiRatePerSecond float64 = 150 / 60
+	ipapiMaxRequests           = 125
+)
 
 // takes an IP API response struct and composes a location string using the data
 func (iar *IPAPIResponse) composeLocationString() string {
@@ -44,6 +51,7 @@ func newIPAPIClient(url string) ipAPIClient {
 
 	client.client = http.DefaultClient
 	client.URL = url
+	client.limiter = ratelimit.NewBucketWithRate(ipapiRatePerSecond, ipapiMaxRequests)
 
 	return client
 }
@@ -71,12 +79,7 @@ func (iac *ipAPIClient) locateIP(ip string) (IPAPIResponse, error) {
 }
 
 func (iac *ipAPIClient) Get(target string) (*http.Response, error) {
-	// naive attempt at client-side rate limiting; refactor this with a better strategy later
-	iac.liveReqs++
-	if iac.liveReqs >= rateLimitPerMin {
-		time.Sleep(1 * time.Minute)
-		iac.liveReqs = 0
-	}
-
+	dur := iac.limiter.Take(1)
+	time.Sleep(dur)
 	return iac.client.Get(target)
 }
