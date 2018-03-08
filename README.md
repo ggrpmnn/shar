@@ -13,3 +13,7 @@ The easiest way to get this tool up and running is to install `git` on your Rasp
 ### Usage
 
 Running `shar` is as simple as running `sudo shar` in your terminal (sudo is required to grant the app access to the `auth.log` file). Options for output and filtering results can be found by using the help (`-h`) flag.
+
+### TODOs
+
+[ ] Use batch requesting to avoid dealing with ip-api rate limiting
