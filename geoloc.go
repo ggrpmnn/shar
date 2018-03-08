@@ -12,11 +12,11 @@ import (
 
 // IPAPIResponse contains the response data from an IP API (https://ip-api.com/json) request
 type IPAPIResponse struct {
-	Status       string  `json:"status"`
+	Status       string  `json:"-"`
 	Country      string  `json:"country"`
-	CountryCode  string  `json:"countryCode"`
+	CountryCode  string  `json:"-"`
 	Region       string  `json:"region"`
-	RegionName   string  `json:"regionName"`
+	RegionName   string  `json:"-"`
 	City         string  `json:"city"`
 	ZipCode      string  `json:"zip"`
 	Latitude     float64 `json:"lat"`
@@ -24,8 +24,8 @@ type IPAPIResponse struct {
 	TimeZone     string  `json:"timezone"`
 	ISP          string  `json:"isp"`
 	Organization string  `json:"org"`
-	As           string  `json:"as"`
-	QueryIP      string  `json:"query"`
+	As           string  `json:"-"`
+	QueryIP      string  `json:"-"`
 }
 
 type ipAPIClient struct {
