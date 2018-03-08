@@ -16,4 +16,4 @@ Running `shar` is as simple as running `sudo shar` in your terminal (sudo is req
 
 ### TODOs
 
-[ ] Use batch requesting to avoid dealing with ip-api rate limiting
+[ ] Use batch requests to avoid dealing with ip-api rate limiting
