@@ -92,6 +92,7 @@ func applyFilters(dae []datedAuthEntries) {
 		// get IP locations in order to apply location filter
 		iac := newIPAPIClient("http://ip-api.com/json/")
 		dae[idx].Entries = dae[idx].apply(func(ae authEntry) authEntry {
+			debug("making API request for IP '%s'", ae.IP)
 			location, err := iac.locateIP(ae.IP)
 			if err != nil {
 				log.Printf("error getting location data for IP '%s': %s", ae.IP, err.Error())
