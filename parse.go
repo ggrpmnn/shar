@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// parse the auth.log file, looking specifically for failed SSH attempts
 func parseSSHAttempts(file *os.File) allEntries {
 	attempts := make(allEntries, 0)
 
