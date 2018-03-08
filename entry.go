@@ -10,9 +10,10 @@ import (
 
 // tracks the login attempts (per-IP, single day)
 type authEntry struct {
-	IP    string   `json:"ip"`
-	Count int      `json:"count"`
-	Users []string `json:"usernames"`
+	IP       string        `json:"ip"`
+	Count    int           `json:"count"`
+	Users    []string      `json:"usernames"`
+	Location IPAPIResponse `json:"location"`
 }
 
 // associates authEntryList objects with a particular date
@@ -45,8 +46,17 @@ func (dae *datedAuthEntries) exists(ip string) (int, bool) {
 	return 0, false
 }
 
+// maps a function to the entries underneath a datedAuthEntries struct
+func (dae *datedAuthEntries) apply(f func(authEntry) authEntry) []authEntry {
+	applied := make([]authEntry, 0)
+	for _, ae := range dae.Entries {
+		applied = append(applied, f(ae))
+	}
+	return applied
+}
+
 // filters the entries based on certain functional criteria
-func (dae *datedAuthEntries) Filter(f func(authEntry) bool) []authEntry {
+func (dae *datedAuthEntries) filter(f func(authEntry) bool) []authEntry {
 	filtered := make([]authEntry, 0)
 	for _, ae := range dae.Entries {
 		if f(ae) {
@@ -57,9 +67,7 @@ func (dae *datedAuthEntries) Filter(f func(authEntry) bool) []authEntry {
 }
 
 func (ae allEntries) print() {
-	iac := newIPAPIClient("http://ip-api.com/json/")
-
-	for _, dae := range ae {
+	for idx, dae := range ae {
 		// don't print the date if there are no entries
 		if len(dae.Entries) > 0 {
 			color.Set(color.FgGreen, color.Bold)
@@ -72,8 +80,7 @@ func (ae allEntries) print() {
 				color.Set(color.FgYellow)
 				fmt.Print("Location: ")
 				color.Unset()
-				location, _ := iac.locateIP(ae.IP)
-				fmt.Println(location.composeLocationString())
+				fmt.Println(ae.Location.composeLocationString())
 				color.Set(color.FgYellow)
 				fmt.Print("Attempts: ")
 				color.Unset()
@@ -83,7 +90,10 @@ func (ae allEntries) print() {
 				color.Unset()
 				fmt.Println(strings.Join(ae.Users, ", "))
 			}
-			fmt.Println()
+			// don't print a newline after the last date
+			if idx != len(ae)-1 {
+				fmt.Println()
+			}
 		}
 	}
 }
