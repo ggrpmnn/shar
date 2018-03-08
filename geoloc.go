@@ -37,8 +37,8 @@ type ipAPIClient struct {
 }
 
 const (
-	ipapiRatePerSecond float64 = 150 / 60
-	ipapiMaxRequests           = 125
+	ipapiRatePerSecond float64 = 1
+	ipapiMaxRequests           = 90
 )
 
 // takes an IP API response struct and composes a location string using the data
