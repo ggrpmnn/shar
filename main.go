@@ -15,16 +15,18 @@ var (
 	address   string
 	user      string
 	locale    string
+	date      string
 )
 
 func init() {
-	flag.BoolVar(&debugOn, "d", false, "enables debug output")
+	flag.BoolVar(&debugOn, "b", false, "enables debug output")
 	flag.BoolVar(&jsonOut, "j", false, "outputs results in JSON format")
 	flag.StringVar(&filename, "f", "/var/log/auth.log", "indicates auth log file to parse")
 	flag.IntVar(&threshold, "n", 0, "limits output to entries that have at least n login attempts")
 	flag.StringVar(&address, "i", "", "limits output to entries that originate from the specified IP address")
 	flag.StringVar(&user, "u", "", "limits output to entries that are logging in as the specified user")
 	flag.StringVar(&locale, "l", "", "limits output to entries that match the specified location string")
+	flag.StringVar(&date, "d", "", "limits output to entries from the specified date (ex. Jan 1)")
 }
 
 func main() {
@@ -44,7 +46,15 @@ func main() {
 	debug("raw data: %+v", attempts)
 
 	// filter the results based on flags
-	applyFilters(attempts)
+	// start by filtering on dates
+	if date != "" {
+		attempts = applyDateFilter(attempts)
+		if attempts == nil {
+			log.Printf("found no date matching supplied filter; exiting")
+			return
+		}
+	}
+	applyEntryFilters(attempts)
 	debug("filtered data: %+v", attempts)
 
 	if jsonOut {
@@ -58,10 +68,20 @@ func main() {
 	debug("operation complete")
 }
 
-// filter the results based on the provided commandline flags; order of filtering is not
-// particularly important, however, the location filter should be last in order to make the
-// fewest requests possible to the IP-API
-func applyFilters(dae []datedAuthEntries) {
+// filters the output down to the specified date
+func applyDateFilter(dae []datedAuthEntries) []datedAuthEntries {
+	for _, day := range dae {
+		if day.Date == date {
+			return append([]datedAuthEntries{}, day)
+		}
+	}
+	return nil
+}
+
+// filter the results for each date's entries based on the provided command-line flags; order of filtering is not
+// particularly important (generally, we try to apply the strictest filters first), however,
+// the location filter should be last in order to make the fewest requests possible to the IP-API
+func applyEntryFilters(dae []datedAuthEntries) {
 	for idx := range dae {
 		// count filter
 		if threshold > 0 {
