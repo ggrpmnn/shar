@@ -13,7 +13,7 @@ type authEntry struct {
 	IP       string        `json:"ip"`
 	Count    int           `json:"count"`
 	Users    []string      `json:"usernames"`
-	Location IPAPIResponse `json:"location"`
+	Location ipAPIResponse `json:"location"`
 }
 
 // associates authEntryList objects with a particular date
