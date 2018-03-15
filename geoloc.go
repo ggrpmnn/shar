@@ -10,8 +10,8 @@ import (
 	"github.com/juju/ratelimit"
 )
 
-// IPAPIResponse contains the response data from an IP API (https://ip-api.com/json) request
-type IPAPIResponse struct {
+// ipAPIResponse contains the response data from an IP API (https://ip-api.com/json) request
+type ipAPIResponse struct {
 	Status       string  `json:"-"`
 	Country      string  `json:"country"`
 	CountryCode  string  `json:"-"`
@@ -42,7 +42,7 @@ const (
 )
 
 // takes an IP API response struct and composes a location string using the data
-func (iar *IPAPIResponse) composeLocationString() string {
+func (iar *ipAPIResponse) composeLocationString() string {
 	return fmt.Sprintf("%s, %s, %s (%f, %f)", iar.City, iar.Region, iar.Country, iar.Latitude, iar.Longitude)
 }
 
@@ -57,22 +57,22 @@ func newIPAPIClient(url string) ipAPIClient {
 }
 
 // makes a call to a IP-geolocation API, parses the data into a response struct and returns the result
-func (iac *ipAPIClient) locateIP(ip string) (IPAPIResponse, error) {
+func (iac *ipAPIClient) locateIP(ip string) (ipAPIResponse, error) {
 	resp, err := iac.Get(iac.URL + ip)
 	if err != nil {
-		return IPAPIResponse{}, err
+		return ipAPIResponse{}, err
 	}
 	defer resp.Body.Close()
 
 	bData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return IPAPIResponse{}, err
+		return ipAPIResponse{}, err
 	}
 
-	location := IPAPIResponse{}
+	location := ipAPIResponse{}
 	err = json.Unmarshal(bData, &location)
 	if err != nil {
-		return IPAPIResponse{}, err
+		return ipAPIResponse{}, err
 	}
 
 	return location, nil
