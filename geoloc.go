@@ -37,8 +37,8 @@ type ipAPIClient struct {
 }
 
 const (
-	ipapiRatePerSecond float64 = 1
-	ipapiMaxRequests           = 90
+	ipapiRatePerSecond float64 = 2
+	ipapiMaxRequests           = 1
 )
 
 // takes an IP API response struct and composes a location string using the data
@@ -58,7 +58,7 @@ func newIPAPIClient(url string) ipAPIClient {
 
 // makes a call to a IP-geolocation API, parses the data into a response struct and returns the result
 func (iac *ipAPIClient) locateIP(ip string) (ipAPIResponse, error) {
-	resp, err := iac.Get(iac.URL + ip)
+	resp, err := iac.Get(iac.URL + "/json/" + ip)
 	if err != nil {
 		return ipAPIResponse{}, err
 	}
@@ -69,9 +69,11 @@ func (iac *ipAPIClient) locateIP(ip string) (ipAPIResponse, error) {
 		return ipAPIResponse{}, err
 	}
 
+	fmt.Println(string(bData))
 	location := ipAPIResponse{}
 	err = json.Unmarshal(bData, &location)
 	if err != nil {
+		fmt.Print("In unmarshal ")
 		return ipAPIResponse{}, err
 	}
 
