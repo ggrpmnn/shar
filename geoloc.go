@@ -69,11 +69,9 @@ func (iac *ipAPIClient) locateIP(ip string) (ipAPIResponse, error) {
 		return ipAPIResponse{}, err
 	}
 
-	fmt.Println(string(bData))
 	location := ipAPIResponse{}
 	err = json.Unmarshal(bData, &location)
 	if err != nil {
-		fmt.Print("In unmarshal ")
 		return ipAPIResponse{}, err
 	}
 
