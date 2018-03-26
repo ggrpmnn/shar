@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"time"
+
+	"github.com/briandowns/spinner"
 )
 
 var (
@@ -30,6 +33,10 @@ func init() {
 }
 
 func main() {
+	// TODO: provide custom usage message with filter annotation
+	// flag.Usage = func() {
+	//
+	// }
 	flag.Parse()
 
 	file, err := os.Open(filename)
@@ -39,11 +46,16 @@ func main() {
 	defer file.Close()
 	debug("auth file loaded: %s", filename)
 
+	spin := spinner.New(spinner.CharSets[39], 250*time.Millisecond)
+	if !debugOn {
+		spin.Start()
+	}
+
 	attempts := parseSSHAttempts(file)
 	debug("finished parsing log file")
 
 	// output parsed data to debug
-	debug("raw data: %+v", attempts)
+	debug("raw file data: %+v", attempts)
 
 	// filter the results based on flags
 	// start by filtering on dates
@@ -54,8 +66,11 @@ func main() {
 			return
 		}
 	}
+
 	applyEntryFilters(attempts)
 	debug("filtered data: %+v", attempts)
+
+	spin.Stop()
 
 	if jsonOut {
 		debug("outputting JSON")
