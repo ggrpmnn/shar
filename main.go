@@ -5,9 +5,11 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/briandowns/spinner"
+	termdim "github.com/wayneashleyberry/terminal-dimensions"
 )
 
 var (
@@ -19,6 +21,10 @@ var (
 	user      string
 	locale    string
 	date      string
+)
+
+const (
+	maxWidth = 80
 )
 
 func init() {
@@ -46,7 +52,8 @@ func main() {
 	defer file.Close()
 	debug("auth file loaded: %s", filename)
 
-	spin := spinner.New(spinner.CharSets[39], 250*time.Millisecond)
+	//spinnerCharSet := []string{"-", "\\", "|", "/"}
+	spin := spinner.New(generateSpinnerSet(), 250*time.Millisecond)
 	if !debugOn {
 		spin.Start()
 	}
@@ -144,6 +151,27 @@ func applyEntryFilters(dae []datedAuthEntries) {
 			dae[idx].Entries = filtered
 		}
 	}
+}
+
+func generateSpinnerSet() []string {
+	set := []string{}
+
+	width, _ := termdim.Width()
+	max := 0
+	if maxWidth > int(width) {
+		// subtract 2 to account for the cursor and the carriage return
+		max = int(width) - 2
+	} else {
+		max = maxWidth
+	}
+
+	str := ""
+	for i := 0; i <= max; i++ {
+		str = strings.Repeat(">", i) + strings.Repeat(" ", max-i)
+		set = append(set, str)
+	}
+
+	return set
 }
 
 // print debug output if the flag is passed in
