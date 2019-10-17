@@ -37,7 +37,7 @@ type ipAPIClient struct {
 }
 
 const (
-	ipapiRatePerSecond float64 = 2
+	ipapiRatePerSecond float64 = .7
 	ipapiMaxRequests           = 1
 )
 
@@ -58,7 +58,7 @@ func newIPAPIClient(url string) ipAPIClient {
 
 // makes a call to a IP-geolocation API, parses the data into a response struct and returns the result
 func (iac *ipAPIClient) locateIP(ip string) (ipAPIResponse, error) {
-	resp, err := iac.Get(iac.URL + "/json/" + ip)
+	resp, err := iac.Get(iac.URL + "json/" + ip)
 	if err != nil {
 		return ipAPIResponse{}, err
 	}
