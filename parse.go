@@ -13,7 +13,7 @@ func parseSSHAttempts(file *os.File) allEntries {
 	attempts := make(allEntries, 0)
 
 	// example auth log line for invalid entries: "Feb  1 19:02:48 grpi sshd[8749]: Invalid user pi from 202.120.42.141"
-	rx := regexp.MustCompile(`(\w+\s+\d+)+\s+(\d{2}:\d{2}:\d{2})\s+grpi sshd\[\d+\]: Invalid user (.*) from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})`)
+	rx := regexp.MustCompile(`(\w+\s+\d+) (\d{2}:\d{2}:\d{2}) [A-z]+ sshd\[\d+\]: Invalid user (.*) from ((?:\d{1,3}\.){3}\d{1,3}) port (\d+)`)
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -21,7 +21,7 @@ func parseSSHAttempts(file *os.File) allEntries {
 		if len(matches) == 0 {
 			continue
 		}
-		// matches[0]=full string, [1]=date, [2]=time, [3]=user, [4]=IP
+		// matches[0]=full string, [1]=date, [2]=time, [3]=user, [4]=IP, [5]=Port
 		dateFound := false
 		trimDate := strings.Join(strings.Fields(matches[1]), " ")
 		for idx, dae := range attempts {
